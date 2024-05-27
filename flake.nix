@@ -27,7 +27,8 @@
     in {
       devShell = with pkgs;
         mkShell rec {
-          buildInputs = [
+          packages = [
+            # app dependencies
             flutter
             androidSdk
             jdk17
@@ -40,6 +41,17 @@
             gtk3
             glib
             pcre
+
+            # backend dependencies
+            ruff
+            (python3.withPackages (python-pkgs:
+              with python-pkgs; [
+                django_5
+                (django-ninja.override {
+                  django = django_5;
+                })
+                pillow
+              ]))
           ];
 
           ANDROID_SDK_ROOT = "${androidSdk}/libexec/android-sdk";

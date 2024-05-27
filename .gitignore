@@ -46,3 +46,6 @@ app.*.map.json
 # direnv
 .direnv/
 .envrc
+
+.ruff_cache/
+db.sqlite3

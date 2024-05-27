@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:typed_data';
 import 'dart:io';
 
@@ -94,37 +93,25 @@ Future<void> submitAnomaly({
   required Dio dio,
 }) async {
   final Map<String, dynamic> data = {
-    'from': 'rostrenen-et-moi@rostrenen.bzh',
-    'to': 'rostrenen-et-moi@rostrenen.bzh',
-    'params': jsonEncode({
-      'address': anomaly.address,
-      'description': anomaly.description,
-    }),
+    'address': anomaly.address,
+    'description': anomaly.description,
   };
 
-  final List<MultipartFile> attachments = [];
+  final List<MultipartFile> photos = [];
   if (anomaly.photos.isNotEmpty) {
     for (var i = 0; i < anomaly.photos.length; i++) {
-      attachments.add(MultipartFile.fromBytes(
+      photos.add(MultipartFile.fromBytes(
         anomaly.photos[i],
         filename: 'photo_$i.jpg',
       ));
     }
   }
-  data['attachments'] = attachments;
+  data['photos'] = photos;
 
   final formData = FormData.fromMap(data);
 
-  final basicAuth =
-      'Basic ${base64Encode(utf8.encode('rostrenen-et-moi:c5JD3muBnFUKPz'))}';
-
   await dio.post(
-    'https://catapulte.nichijou.dev/templates/anomaly/multipart',
-    options: Options(
-      headers: {
-        'authorization': basicAuth,
-      },
-    ),
+    'https://rostrenen-et-moi.rostrenen.bzh/anomalies/api/anomalies',
     data: formData,
   );
 }

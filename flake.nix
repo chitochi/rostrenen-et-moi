@@ -50,12 +50,18 @@
                 (django-ninja.override {
                   django = django_5;
                 })
+                (django-environ.override {
+                  django = django_5;
+                })
                 pillow
               ]))
           ];
 
           ANDROID_SDK_ROOT = "${androidSdk}/libexec/android-sdk";
           GRADLE_OPTS = "-Dorg.gradle.project.android.aapt2FromMavenOverride=${androidSdk}/libexec/android-sdk/build-tools/31.0.0/aapt2";
+
+          SECRET_KEY = "django-insecure-(hx(p9v^v0%i8y+r435gu@vs6&5x6t*$&x8mdcp$cskx8j!!@^";
+          DEBUG = "true";
         };
     });
 }

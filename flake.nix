@@ -32,6 +32,9 @@
         (django-environ.override {
           django = django_5;
         })
+        (whitenoise.override {
+          django = django_5;
+        })
         pillow
       ];
     in {

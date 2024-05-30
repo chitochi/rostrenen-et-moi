@@ -1,0 +1,27 @@
+name: Build and push Docker image
+on:
+  push:
+    branches:
+      - main
+jobs:
+  build-and-push-docker-image:
+    name: Build and push Docker image
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v4
+      - name: Set up Nix
+        uses: DeterminateSystems/nix-installer-action@main
+      - name: Set up Nix cache
+        uses: DeterminateSystems/magic-nix-cache-action@main
+      - name: Check Flake health
+        uses: DeterminateSystems/flake-checker-action@main
+      - name: Build and push Docker image
+        run: |
+          echo "Building..."
+          nix build .#backendDockerImage
+          echo "Pushing..."
+          skopeo copy docker-archive:result "docker://ghcr.io/${{ github.actor }}/rostrenen-et-moi-backend:latest" --dest-creds "${{ github.actor }}:${{ secrets.GITHUB_TOKEN }}"

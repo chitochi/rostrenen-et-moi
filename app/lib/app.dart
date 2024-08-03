@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:go_router/go_router.dart';
+import 'package:phone_form_field/phone_form_field.dart';
 import 'package:sqflite/sqflite.dart';
 
 class App extends StatelessWidget {
@@ -32,6 +33,7 @@ class App extends StatelessWidget {
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
         FormBuilderLocalizations.delegate,
+        ...PhoneFieldLocalization.delegates,
       ],
       supportedLocales: const [
         Locale('fr'),

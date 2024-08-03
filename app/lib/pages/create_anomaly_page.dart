@@ -13,6 +13,7 @@ import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_image_picker/form_builder_image_picker.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:go_router/go_router.dart';
+import 'package:phone_form_field/phone_form_field.dart';
 import 'package:rostrenen_et_moi/models/anomaly.dart';
 import 'package:rostrenen_et_moi/models/draft.dart';
 import 'package:sqflite/sqflite.dart';
@@ -73,6 +74,9 @@ class CreateAnomalyPage extends StatelessWidget {
               final draftId = await transaction.insert('drafts', {
                 'address': draft.address,
                 'description': draft.description,
+                'full_name': draft.fullName,
+                'email': draft.email,
+                'phone_number': draft.phoneNumber,
               });
 
               await storePhotos(draftId, draft.photos);
@@ -92,9 +96,14 @@ Future<void> submitAnomaly({
   required Anomaly anomaly,
   required Dio dio,
 }) async {
+  final phoneNumber = PhoneNumber.parse(anomaly.phoneNumber);
+
   final Map<String, dynamic> data = {
     'address': anomaly.address,
     'description': anomaly.description,
+    'full_name': anomaly.fullName,
+    'email': anomaly.email.isEmpty ? null : anomaly.email,
+    'phone_number': phoneNumber.isValid() ? phoneNumber.international : null,
   };
 
   final List<MultipartFile> photos = [];
@@ -114,6 +123,10 @@ Future<void> submitAnomaly({
     'https://rostrenen-et-moi.rostrenen.bzh/anomalies/api/anomalies',
     data: formData,
   );
+}
+
+bool isNullOrEmpty(String? value) {
+  return value == null || value.isEmpty;
 }
 
 class AnomalyForm extends StatefulWidget {
@@ -180,6 +193,9 @@ class _AnomalyFormState extends State<AnomalyForm> {
       address: value['address'],
       description: value['description'],
       photos: await getPhotos(value['photos']),
+      fullName: value['full_name'],
+      email: value['email'] ?? '',
+      phoneNumber: (value['phone_number'] as PhoneNumber?)?.international ?? '',
     );
   }
 
@@ -197,6 +213,9 @@ class _AnomalyFormState extends State<AnomalyForm> {
       address: value['address'] ?? '',
       description: value['description'] ?? '',
       photos: await getPhotos(value['photos']),
+      fullName: value['full_name'] ?? '',
+      email: value['email'] ?? '',
+      phoneNumber: (value['phone_number'] as PhoneNumber?)?.international ?? '',
     );
   }
 
@@ -204,6 +223,8 @@ class _AnomalyFormState extends State<AnomalyForm> {
 
   @override
   Widget build(BuildContext context) {
+    final initialPhoneNumber = widget.initialDraft?.phoneNumber;
+
     return FormBuilder(
       key: _formKey,
       initialValue: {
@@ -212,6 +233,11 @@ class _AnomalyFormState extends State<AnomalyForm> {
         'photos': widget.initialDraft?.photos
             .map((photo) => XFile.fromData(photo))
             .toList(),
+        'full_name': widget.initialDraft?.fullName,
+        'phone_number': initialPhoneNumber?.isEmpty ?? true
+            ? const PhoneNumber(isoCode: IsoCode.FR, nsn: '')
+            : PhoneNumber.parse(initialPhoneNumber!),
+        'email': widget.initialDraft?.email,
       },
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -235,6 +261,38 @@ class _AnomalyFormState extends State<AnomalyForm> {
             minLines: 2,
             maxLines: null,
             validator: FormBuilderValidators.required(),
+          ),
+          const SizedBox(height: 12),
+          FormBuilderTextField(
+            name: 'full_name',
+            decoration: const InputDecoration(
+              labelText: 'Nom complet',
+              border: OutlineInputBorder(),
+            ),
+            validator: FormBuilderValidators.required(),
+          ),
+          const SizedBox(height: 12),
+          PhoneNumberField(formKey: _formKey),
+          const SizedBox(height: 12),
+          FormBuilderTextField(
+            name: 'email',
+            decoration: const InputDecoration(
+              labelText: 'Adresse e-mail',
+              border: OutlineInputBorder(),
+            ),
+            validator: FormBuilderValidators.compose([
+              FormBuilderValidators.email(
+                checkNullOrEmpty: false,
+              ),
+              (value) {
+                final phoneNumber = _formKey.currentState
+                    ?.fields['phone_number']?.value as PhoneNumber?;
+                if (isNullOrEmpty(value) && isNullOrEmpty(phoneNumber?.nsn)) {
+                  return "Au moins un moyen de contact requis.";
+                }
+                return null;
+              },
+            ]),
           ),
           const SizedBox(height: 12),
           Wrap(
@@ -386,6 +444,55 @@ class _AddressFieldState extends State<AddressField> {
               ),
             ),
           ],
+        );
+      },
+    );
+  }
+}
+
+class PhoneNumberField extends StatelessWidget {
+  const PhoneNumberField({
+    super.key,
+    required this.formKey,
+  });
+
+  final GlobalKey<FormBuilderState> formKey;
+
+  @override
+  Widget build(BuildContext context) {
+    return FormBuilderField(
+      name: "phone_number",
+      validator: (PhoneNumber? value) {
+        final empty = isNullOrEmpty(value?.nsn);
+        if (!empty) {
+          if (!value!.isValid()) {
+            return "Ce champ nécessite un numéro de téléphone valide.";
+          }
+        }
+
+        final email = formKey.currentState?.fields['email']?.value;
+        if (empty && isNullOrEmpty(email)) {
+          return "Au moins un moyen de contact requis.";
+        }
+        return null;
+      },
+      builder: (FormFieldState<PhoneNumber> field) {
+        return PhoneFormField(
+          initialValue: field.value,
+          countrySelectorNavigator: const CountrySelectorNavigator.dialog(
+            favorites: [IsoCode.FR],
+          ),
+          onChanged: (phoneNumber) {
+            field.didChange(phoneNumber);
+          },
+          countryButtonStyle: const CountryButtonStyle(
+            showFlag: false,
+          ),
+          decoration: InputDecoration(
+            labelText: 'Numéro de téléphone',
+            border: const OutlineInputBorder(),
+            errorText: field.errorText,
+          ),
         );
       },
     );

@@ -14,12 +14,18 @@ import 'package:rostrenen_et_moi/pages/drafts_page.dart';
 Future<Draft> _fetchDraft(Database database, int draftId) async {
   final draftsMaps = await database.query(
     'drafts',
-    columns: ['id', 'address', 'description'],
+    columns: [
+      'id',
+      'address',
+      'description',
+      'full_name',
+      'email',
+      'phone_number'
+    ],
     where: 'id = ?',
     whereArgs: [draftId],
   );
   final draftMap = draftsMaps[0];
-
   final directory = await getPhotosDirectory(draftId);
   final List<Uint8List> photos = [];
   if (await directory.exists()) {
@@ -36,6 +42,9 @@ Future<Draft> _fetchDraft(Database database, int draftId) async {
     address: draftMap['address'] as String,
     description: draftMap['description'] as String,
     photos: photos,
+    fullName: draftMap['full_name'] as String,
+    email: draftMap['email'] as String,
+    phoneNumber: draftMap['phone_number'] as String,
   );
 }
 
@@ -68,23 +77,20 @@ class _DraftPageState extends State<DraftPage> {
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
-      child: Padding(
-        padding: const EdgeInsets.all(12),
-        child: FutureBuilder(
-          future: queryFuture,
-          builder: (context, snapshot) {
-            if (snapshot.connectionState != ConnectionState.done) {
-              return buildLoading();
-            }
+      child: FutureBuilder(
+        future: queryFuture,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState != ConnectionState.done) {
+            return buildLoading();
+          }
 
-            final error = snapshot.error;
-            if (error != null) {
-              throw error;
-            }
+          final error = snapshot.error;
+          if (error != null) {
+            throw error;
+          }
 
-            return buildForm(context, snapshot.data!);
-          },
-        ),
+          return buildForm(context, snapshot.data!);
+        },
       ),
     );
   }
@@ -98,7 +104,7 @@ class _DraftPageState extends State<DraftPage> {
   Widget buildForm(BuildContext context, Draft draft) {
     return SingleChildScrollView(
       child: Padding(
-        padding: const EdgeInsets.all(24),
+        padding: const EdgeInsets.all(12),
         child: AnomalyForm(
           initialDraft: draft,
           onSubmit: ({
@@ -126,6 +132,9 @@ class _DraftPageState extends State<DraftPage> {
                 {
                   'address': draft.address,
                   'description': draft.description,
+                  'full_name': draft.fullName,
+                  'email': draft.email,
+                  'phone_number': draft.phoneNumber,
                 },
                 where: 'id = ?',
                 whereArgs: [widget.draftId],

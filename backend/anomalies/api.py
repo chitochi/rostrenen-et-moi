@@ -12,6 +12,9 @@ class AnomalyInput(ModelSchema):
         fields = [
             "address",
             "description",
+            "full_name",
+            "email",
+            "phone_number",
         ]
 
 

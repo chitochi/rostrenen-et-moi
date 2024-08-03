@@ -16,13 +16,31 @@ Future<void> main() async {
 
   final database = await openDatabase(
     "rostrenen_et_moi.db",
-    version: 1,
+    version: 3,
     onCreate: (database, version) async {
       await database.execute('''CREATE TABLE drafts (
-	id INTEGER PRIMARY KEY AUTOINCREMENT,
-	address TEXT NOT NULL,
-	description TEXT NOT NULL
-      )''');
+	  id INTEGER PRIMARY KEY AUTOINCREMENT,
+	  address TEXT NOT NULL,
+	  description TEXT NOT NULL,
+	  full_name TEXT NOT NULL,
+	  email TEXT NOT NULL,
+	  phone_number TEXT NOT NULL
+	)''');
+    },
+    onUpgrade: (db, oldVersion, newVersion) async {
+      if (oldVersion <= 2) {
+        var batch = db.batch();
+        batch.execute("DROP TABLE drafts");
+        batch.execute('''CREATE TABLE drafts (
+	  id INTEGER PRIMARY KEY AUTOINCREMENT,
+	  address TEXT NOT NULL,
+	  description TEXT NOT NULL,
+	  full_name TEXT NOT NULL,
+	  email TEXT NOT NULL,
+	  phone_number TEXT NOT NULL
+	)''');
+        await batch.commit();
+      }
     },
   );
 

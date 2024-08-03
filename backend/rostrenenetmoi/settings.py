@@ -26,6 +26,7 @@ CSRF_TRUSTED_ORIGINS = env.list("CSRF_TRUSTED_ORIGINS", default=[])
 
 INSTALLED_APPS = [
     "whitenoise.runserver_nostatic",
+    "phonenumber_field",
     "anomalies.apps.AnomaliesConfig",
     "django.contrib.admin",
     "django.contrib.auth",
@@ -71,7 +72,12 @@ WSGI_APPLICATION = "rostrenenetmoi.wsgi.application"
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
 DATABASES = {
-    "default": env.db(default="db.sqlite3"),
+    "default": env.db(default=None)
+    if env.get_value("DATABASE_URL", default=None)
+    else {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": BASE_DIR / "db.sqlite3",
+    },
 }
 
 

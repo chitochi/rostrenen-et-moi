@@ -20,11 +20,12 @@
       buildToolsVersion = "30.0.3";
       androidComposition = pkgs.androidenv.composeAndroidPackages {
         buildToolsVersions = ["31.0.0" buildToolsVersion];
-        platformVersions = ["33" "32" "31" "28"];
+        platformVersions = ["34" "33" "32" "31" "28"];
         abiVersions = ["armeabi-v7a" "arm64-v8a"];
       };
       androidSdk = androidComposition.androidsdk;
       pythonPkgs = with pkgs.python3Packages; [
+        pillow
         django_5
         (django-ninja.override {
           django = django_5;
@@ -35,7 +36,9 @@
         (whitenoise.override {
           django = django_5;
         })
-        pillow
+        (django-phonenumber-field.override {
+          django = django_5;
+        })
       ];
     in {
       packages = {
@@ -87,6 +90,9 @@
               # backend dependencies
               ruff
               python3
+
+              # tools
+              sqlite
             ]
             ++ pythonPkgs;
 

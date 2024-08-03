@@ -9,7 +9,14 @@ import 'package:rostrenen_et_moi/pages/create_anomaly_page.dart';
 Future<List<Draft>> _fetchDraftsWithoutPhotos(Database database) async {
   final draftsMaps = await database.query(
     'drafts',
-    columns: ['id', 'address', 'description'],
+    columns: [
+      'id',
+      'address',
+      'description',
+      'full_name',
+      'email',
+      'phone_number'
+    ],
     orderBy: 'id DESC',
   );
 
@@ -19,6 +26,9 @@ Future<List<Draft>> _fetchDraftsWithoutPhotos(Database database) async {
             address: draftMap['address'] as String,
             description: draftMap['description'] as String,
             photos: [],
+            fullName: draftMap['full_name'] as String,
+            email: draftMap['email'] as String,
+            phoneNumber: draftMap['phone_number'] as String,
           ))
       .toList();
 }

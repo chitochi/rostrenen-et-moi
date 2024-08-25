@@ -27,6 +27,7 @@ CSRF_TRUSTED_ORIGINS = env.list("CSRF_TRUSTED_ORIGINS", default=[])
 INSTALLED_APPS = [
     "whitenoise.runserver_nostatic",
     "phonenumber_field",
+    "import_export",
     "anomalies.apps.AnomaliesConfig",
     "django.contrib.admin",
     "django.contrib.auth",
@@ -116,12 +117,17 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
 STATIC_ROOT = env("STATIC_ROOT", default=BASE_DIR / "staticfiles")
-
 STATIC_URL = "static/"
+
+MEDIA_ROOT = env("MEDIA_ROOT", default=BASE_DIR / "media")
+MEDIA_URL = "media/"
 
 STORAGES = {
     "staticfiles": {
         "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    },
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
     },
 }
 

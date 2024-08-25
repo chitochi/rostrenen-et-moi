@@ -39,6 +39,9 @@
         (django-phonenumber-field.override {
           django = django_5;
         })
+        (django-import-export.override {
+          django = django_5;
+        })
       ];
     in {
       packages = {

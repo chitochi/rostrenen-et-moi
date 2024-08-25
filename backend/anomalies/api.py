@@ -52,6 +52,7 @@ def create_anomaly(
         ["rostrenen-et-moi@rostrenen.bzh"],
     )
     for photo in photos:
+        photo.seek(0)
         email.attach(photo.name, photo.read(), photo.content_type)
     email.send(fail_silently=False)
 

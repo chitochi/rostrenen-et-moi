@@ -1,5 +1,6 @@
 from typing import List
 
+from django.core.mail import EmailMessage
 from django.db import transaction
 from ninja import File, Form, ModelSchema, NinjaAPI, UploadedFile
 
@@ -30,4 +31,28 @@ def create_anomaly(
     anomaly = Anomaly.objects.create(**payload_dict)
     for photo in photos:
         anomaly.photo_set.create(photo=photo)
+
+    email = EmailMessage(
+        "Anomalie déclarée",
+        """Une nouvelle anomalie a été déclarée sur Rostrenen et moi.
+
+        Adresse : {}
+        Nom complet : {}
+        Adresse email : {}
+        Numéro de téléphone : {}
+        Description :
+        {}""".format(
+            payload_dict["address"],
+            payload_dict["full_name"],
+            payload_dict["email"],
+            payload_dict["phone_number"],
+            payload_dict["description"],
+        ),
+        "rostrenen-et-moi@rostrenen.bzh",
+        ["rostrenen-et-moi@rostrenen.bzh"],
+    )
+    for photo in photos:
+        email.attach(photo.name, photo.read(), photo.content_type)
+    email.send(fail_silently=False)
+
     return {"id": anomaly.id}

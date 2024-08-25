@@ -63,7 +63,10 @@
             tag = "latest";
             contents = [backend pkgs.python3Packages.gunicorn];
             config = {
-              Env = ["PYTHONPATH=${backend.pythonPath}"];
+              Env = [
+                "PYTHONPATH=${backend.pythonPath}"
+                "SSL_CERT_FILE=${pkgs.cacert}/etc/ssl/certs/ca-bundle.crt"
+              ];
               Cmd = ["gunicorn" "--bind" "0.0.0.0:8000" "--chdir" pkgs.python3.sitePackages "rostrenenetmoi.wsgi"];
             };
           };

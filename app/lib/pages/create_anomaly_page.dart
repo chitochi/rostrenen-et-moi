@@ -242,6 +242,12 @@ class _AnomalyFormState extends State<AnomalyForm> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          const Text(
+              "Cet écran vous permet de signaler une anomalie, ou de l’enregistrer comme brouillon pour la signaler plus tard."),
+          const SizedBox(height: 12),
+          const Text(
+              "N’hésitez pas à nous contacter par e-mail à l’adresse support@rostrenen.bzh."),
+          const SizedBox(height: 12),
           AddressField(formKey: _formKey),
           const SizedBox(height: 12),
           FormBuilderImagePicker(
@@ -249,6 +255,8 @@ class _AnomalyFormState extends State<AnomalyForm> {
             decoration: const InputDecoration(
               border: InputBorder.none,
               labelText: 'Photos',
+              helperText: 'Pour nous aider à comprendre / situer l’anomalie.',
+              helperMaxLines: 3,
             ),
           ),
           const SizedBox(height: 12),
@@ -257,6 +265,8 @@ class _AnomalyFormState extends State<AnomalyForm> {
             decoration: const InputDecoration(
               labelText: 'Description',
               border: OutlineInputBorder(),
+              helperText: 'Pour nous aider à comprendre / situer l’anomalie.',
+              helperMaxLines: 3,
             ),
             minLines: 2,
             maxLines: null,
@@ -268,6 +278,8 @@ class _AnomalyFormState extends State<AnomalyForm> {
             decoration: const InputDecoration(
               labelText: 'Nom complet',
               border: OutlineInputBorder(),
+              helperText: 'Afin de pouvoir vous recontacter.',
+              helperMaxLines: 3,
             ),
             validator: FormBuilderValidators.required(),
           ),
@@ -279,6 +291,9 @@ class _AnomalyFormState extends State<AnomalyForm> {
             decoration: const InputDecoration(
               labelText: 'Adresse e-mail',
               border: OutlineInputBorder(),
+              helperText:
+                  'Afin de pouvoir vous recontacter. Vous devez indiquer soit une adresse e-mail, soit un numéro de téléphone, soit les deux.',
+              helperMaxLines: 3,
             ),
             validator: FormBuilderValidators.compose([
               FormBuilderValidators.email(
@@ -319,6 +334,14 @@ class _AnomalyFormState extends State<AnomalyForm> {
                             ScaffoldMessenger.of(context)
                                 .showSnackBar(const SnackBar(
                               content: Text('L\'anomalie a bien été signalée.'),
+                            ));
+                          }
+                        } on Exception {
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context)
+                                .showSnackBar(const SnackBar(
+                              content: Text(
+                                  'Une erreur est survenue, veuillez réessayer.'),
                             ));
                           }
                         } finally {
@@ -426,6 +449,9 @@ class _AddressFieldState extends State<AddressField> {
               decoration: const InputDecoration(
                 labelText: 'Adresse',
                 border: OutlineInputBorder(),
+                helperText:
+                    'Où se trouve l’anomalie ? Vous pouvez utiliser le bouton ci-dessous pour remplir ce champ en utilisant votre GPS.',
+                helperMaxLines: 3,
               ),
               validator: FormBuilderValidators.required(),
             ),
@@ -492,6 +518,9 @@ class PhoneNumberField extends StatelessWidget {
             labelText: 'Numéro de téléphone',
             border: const OutlineInputBorder(),
             errorText: field.errorText,
+            helperText:
+                'Afin de pouvoir vous recontacter. Vous devez indiquer soit une adresse e-mail, soit un numéro de téléphone, soit les deux.',
+            helperMaxLines: 3,
           ),
         );
       },

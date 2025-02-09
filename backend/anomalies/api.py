@@ -1,5 +1,6 @@
 from typing import List
 
+from django.conf import settings
 from django.core.mail import EmailMessage
 from django.db import transaction
 from ninja import File, Form, ModelSchema, NinjaAPI, UploadedFile
@@ -48,8 +49,8 @@ def create_anomaly(
             payload_dict["phone_number"],
             payload_dict["description"],
         ),
-        "rostrenen-et-moi@rostrenen.bzh",
-        ["rostrenen-et-moi@rostrenen.bzh"],
+        settings.ANOMALY_EMAIL_FROM,
+        settings.ANOMALY_EMAIL_TO,
     )
     for photo in photos:
         photo.seek(0)

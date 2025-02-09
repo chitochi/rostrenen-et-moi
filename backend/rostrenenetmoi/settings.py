@@ -141,3 +141,6 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 EMAIL_CONFIG = env.email("EMAIL_URL")
 
 vars().update(EMAIL_CONFIG)
+
+ANOMALY_EMAIL_FROM = env("ANOMALY_EMAIL_FROM")
+ANOMALY_EMAIL_TO = env.list("ANOMALY_EMAIL_TO")

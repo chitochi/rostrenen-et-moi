@@ -45,7 +45,9 @@
           version = "1.0";
           src = ./backend;
           doCheck = false;
+          pyproject = true;
 
+          buildInputs = [pkgs.python3Packages.setuptools];
           propagatedBuildInputs = pythonPkgs;
 
           passthru = {
